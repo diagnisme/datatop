@@ -1,7 +1,6 @@
 # DATATOP — Site multi-pages
 
-Site statique premium pour DATATOP (Conseil, Formation, Projets, Carrières).
-Aucun build — HTML / CSS / JS purs.
+Site DATATOP
 
 ## Pages
 
