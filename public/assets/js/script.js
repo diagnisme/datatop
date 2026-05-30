@@ -65,17 +65,17 @@
         el.style.transform = 'translateY(20px)';
       });
 
-      gsap.timeline({ delay: 0.18, defaults: { ease: 'expo.out' } })
-        .to('.hero-badge',   { opacity: 1, y: 0, duration: 0.7 })
-        .to('.hero-title',   { opacity: 1, y: 0, duration: 0.9 }, '-=0.42')
-        .to('.hero-desc',    { opacity: 1, y: 0, duration: 0.8 }, '-=0.52')
-        .to('.hero-actions', { opacity: 1, y: 0, duration: 0.7 }, '-=0.48');
+      gsap.timeline({ delay: 0.18, defaults: { ease: 'back.out(1.8)' } })
+        .to('.hero-badge',   { opacity: 1, y: 0, duration: 0.8 })
+        .to('.hero-title',   { opacity: 1, y: 0, duration: 1.0 }, '-=0.48')
+        .to('.hero-desc',    { opacity: 1, y: 0, duration: 0.9 }, '-=0.54')
+        .to('.hero-actions', { opacity: 1, y: 0, duration: 0.85 }, '-=0.50');
     }
 
-    // ScrollTrigger scroll-reveals (replaces IntersectionObserver)
+    // ScrollTrigger scroll-reveals with spring easing
     document.querySelectorAll('.reveal').forEach(el => {
       el.style.transition = 'none';
-      gsap.set(el, { opacity: 0, y: 28 });
+      gsap.set(el, { opacity: 0, y: 32 });
 
       const parent    = el.parentElement;
       const siblings  = parent
@@ -91,11 +91,29 @@
           gsap.to(el, {
             opacity: 1,
             y: 0,
-            duration: 0.95,
-            ease: 'expo.out',
-            delay: Math.min(sibIdx * 0.08, 0.38)
+            duration: 1.1,
+            ease: 'back.out(1.6)',
+            delay: Math.min(sibIdx * 0.09, 0.42)
           });
         }
+      });
+    });
+
+    // Card hover glow effect with GSAP
+    document.querySelectorAll('.service-card-lg, .card, .feature-item, .case-card, .job-card').forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        gsap.to(card, {
+          boxShadow: '0 24px 64px rgba(37, 99, 235, 0.22), 0 8px 24px rgba(0, 0, 0, 0.08)',
+          duration: 0.4,
+          ease: 'power2.out'
+        });
+      });
+      card.addEventListener('mouseleave', () => {
+        gsap.to(card, {
+          boxShadow: 'var(--sh-xs)',
+          duration: 0.3,
+          ease: 'power2.out'
+        });
       });
     });
 
@@ -114,7 +132,7 @@
                 c.classList.contains('reveal') && !c.classList.contains('in')
               );
               const idx = sibs.indexOf(e.target);
-              if (idx > 0) e.target.style.transitionDelay = `${idx * 0.08}s`;
+              if (idx > 0) e.target.style.transitionDelay = `${idx * 0.09}s`;
             }
             e.target.classList.add('in');
             io.unobserve(e.target);
@@ -129,36 +147,66 @@
   }
 
   // ============================================================
-  // Animated counters
+  // Animated counters with GSAP
   // ============================================================
   const counters = document.querySelectorAll('.stat-num');
-  const ease4    = t => 1 - Math.pow(1 - t, 4);
 
-  const animateCount = el => {
-    const target = parseInt(el.dataset.count, 10);
-    if (isNaN(target)) return;
-    const suffix   = el.dataset.suffix || '';
-    const duration = 1600;
-    const start    = performance.now();
-    const tick = now => {
-      const p = Math.min((now - start) / duration, 1);
-      el.textContent = Math.floor(ease4(p) * target) + suffix;
-      if (p < 1) requestAnimationFrame(tick);
-      else el.textContent = target + suffix;
-    };
-    requestAnimationFrame(tick);
-  };
+  if (gsapReady && counters.length) {
+    counters.forEach(el => {
+      const target = parseInt(el.dataset.count, 10);
+      const suffix = el.dataset.suffix || '';
 
-  if ('IntersectionObserver' in window && counters.length) {
-    const cio = new IntersectionObserver(
-      entries => entries.forEach(e => {
-        if (e.isIntersecting) { animateCount(e.target); cio.unobserve(e.target); }
-      }),
-      { threshold: 0.4 }
-    );
-    counters.forEach(c => cio.observe(c));
+      if (isNaN(target)) return;
+
+      ScrollTrigger.create({
+        trigger: el,
+        start: 'top 85%',
+        once: true,
+        onEnter: () => {
+          gsap.to({ val: 0 }, {
+            val: target,
+            duration: 2.2,
+            ease: 'expo.out',
+            onUpdate: function() {
+              el.textContent = Math.floor(this.targets()[0].val) + suffix;
+            },
+            onComplete: () => {
+              el.textContent = target + suffix;
+            }
+          });
+        }
+      });
+    });
   } else {
-    counters.forEach(animateCount);
+    // Fallback: animate counters without GSAP
+    const ease4    = t => 1 - Math.pow(1 - t, 4);
+
+    const animateCount = el => {
+      const target = parseInt(el.dataset.count, 10);
+      if (isNaN(target)) return;
+      const suffix   = el.dataset.suffix || '';
+      const duration = 2200;
+      const start    = performance.now();
+      const tick = now => {
+        const p = Math.min((now - start) / duration, 1);
+        el.textContent = Math.floor(ease4(p) * target) + suffix;
+        if (p < 1) requestAnimationFrame(tick);
+        else el.textContent = target + suffix;
+      };
+      requestAnimationFrame(tick);
+    };
+
+    if ('IntersectionObserver' in window && counters.length) {
+      const cio = new IntersectionObserver(
+        entries => entries.forEach(e => {
+          if (e.isIntersecting) { animateCount(e.target); cio.unobserve(e.target); }
+        }),
+        { threshold: 0.4 }
+      );
+      counters.forEach(c => cio.observe(c));
+    } else {
+      counters.forEach(animateCount);
+    }
   }
 
   // ============================================================
@@ -321,13 +369,26 @@
   });
 
   // ============================================================
-  // Hero parallax — content floats up and fades on scroll
+  // Hero parallax — enhanced with smooth easing
   // ============================================================
   const heroSection  = document.querySelector('.hero');
   const heroInner    = document.querySelector('.hero-inner');
   const scrollHintEl = document.querySelector('.scroll-hint');
 
-  if (heroSection && heroInner) {
+  if (heroSection && heroInner && gsapReady) {
+    ScrollTrigger.create({
+      trigger: heroSection,
+      start: 'top top',
+      end: 'bottom top',
+      scrub: 0.8,
+      onUpdate: (self) => {
+        const progress = self.getVelocity() > 0 ? self.progress : self.progress;
+        heroInner.style.opacity = String(Math.max(0, 1 - progress * 1.6));
+        heroInner.style.transform = `translate3d(0, ${progress * window.innerHeight * 0.32}px, 0)`;
+        if (scrollHintEl) scrollHintEl.style.opacity = String(Math.max(0, 1 - progress * 8));
+      }
+    });
+  } else if (heroSection && heroInner) {
     let heroTicking = false;
     const onHeroScroll = () => {
       if (heroTicking) return;
@@ -338,8 +399,8 @@
         if (y < h) {
           const p = y / h;
           heroInner.style.opacity   = String(Math.max(0, 1 - p * 1.55));
-          heroInner.style.transform = `translate3d(0, ${y * 0.2}px, 0)`;
-          if (scrollHintEl) scrollHintEl.style.opacity = String(Math.max(0, 1 - p * 6));
+          heroInner.style.transform = `translate3d(0, ${y * 0.22}px, 0)`;
+          if (scrollHintEl) scrollHintEl.style.opacity = String(Math.max(0, 1 - p * 6.5));
         } else {
           heroInner.style.opacity   = '0';
           heroInner.style.transform = '';
