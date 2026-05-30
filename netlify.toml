@@ -1,0 +1,25 @@
+[build]
+  publish = "."
+
+# Pretty URLs : /conseil au lieu de /conseil.html (activé par défaut sur Netlify)
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+
+[[headers]]
+  for = "/styles.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/script.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Page 404 personnalisée optionnelle (créer 404.html)
+# Netlify la sert automatiquement.

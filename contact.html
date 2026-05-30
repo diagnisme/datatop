@@ -1,0 +1,139 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#03030F" />
+  <title>Contact · DATATOP</title>
+  <meta name="description" content="Contactez DATATOP : email, téléphone, formulaire. Réponse sous 24h pour discuter de votre projet Data &amp; IA." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" /></noscript>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="icon" type="image/png" sizes="512x512" href="assets/img/favicon.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/img/favicon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/img/favicon.png" />
+</head>
+<body>
+
+<header class="nav" id="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="logo" aria-label="DATATOP, accueil">
+      <img src="assets/img/logo.png" alt="" class="logo-img" fetchpriority="high" decoding="async" aria-hidden="true" />
+      <span class="logo-wordmark">DATATOP</span>
+    </a>
+    <nav class="nav-links" id="navLinks" aria-label="Navigation principale">
+      <a href="index.html">Accueil</a>
+      <a href="conseil.html">Conseil</a>
+      <a href="formation.html">Formation</a>
+      <a href="projets.html">Projets</a>
+      <a href="carrieres.html">Carrières</a>
+      <a href="a-propos.html">À propos</a>
+    </nav>
+    <div class="nav-actions">
+      <a href="tel:+33695408650" class="btn-appel" aria-label="Appeler DATATOP">
+        <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M3.3 1.3c.3-.3.7-.3 1 0l2 2c.3.3.3.7 0 1L5 5.7c.8 1.6 2 2.9 3.6 3.7l1.4-1.4c.3-.3.7-.3 1 0l2 2c.3.3.3.7 0 1l-1.3 1.3c-3.6.7-8.9-4.6-8.4-8.7L3.3 1.3z"/></svg>
+      </a>
+      <a href="contact.html" class="btn-nav" aria-current="page">Contact</a>
+      <button class="nav-burger" id="navBurger" aria-label="Ouvrir le menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section class="page-hero contact-hero">
+    <div class="container">
+      <div class="page-hero-tags reveal">
+        <span class="page-hero-tag">Réponse sous 24h</span>
+        <span class="page-hero-tag">Consultation gratuite</span>
+      </div>
+      <h1 class="reveal">Parlons de votre <span class="gradient-text">projet</span></h1>
+      <p class="lead reveal">Décrivez votre besoin en quelques lignes. Un expert DATATOP vous répond sous 24h avec un premier diagnostic, sans engagement.</p>
+    </div>
+  </section>
+
+  <!-- FORM -->
+  <section class="section">
+    <div class="container">
+      <div class="form-wrap reveal">
+        <form id="contactForm" novalidate>
+          <div class="form-row">
+            <label>
+              <span>Nom complet</span>
+              <input type="text" name="name" required placeholder="Jeanne Martin" autocomplete="name" />
+            </label>
+            <label>
+              <span>Email professionnel</span>
+              <input type="email" name="email" required placeholder="vous@entreprise.com" autocomplete="email" />
+            </label>
+          </div>
+          <div class="form-row">
+            <label>
+              <span>Entreprise</span>
+              <input type="text" name="company" placeholder="Votre société" autocomplete="organization" />
+            </label>
+            <label>
+              <span>Téléphone</span>
+              <input type="tel" name="phone" placeholder="+33 6 12 34 56 78" autocomplete="tel" />
+            </label>
+          </div>
+          <label>
+            <span>Sujet</span>
+            <select name="subject">
+              <option value="">Sélectionner un sujet</option>
+              <option>Conseil Data &amp; IA</option>
+              <option>Formation</option>
+              <option>Projet sur-mesure</option>
+              <option>Partenariat</option>
+              <option>Autre</option>
+            </select>
+          </label>
+          <label>
+            <span>Votre message</span>
+            <textarea name="message" rows="5" required placeholder="Décrivez votre besoin : contexte, objectifs, contraintes..."></textarea>
+          </label>
+          <button type="submit" class="btn btn-primary btn-lg btn-block">
+            <span>Envoyer mon message</span>
+            <svg viewBox="0 0 16 16" width="16" height="16"><path fill="currentColor" d="M6 3l5 5-5 5V3z"/></svg>
+          </button>
+          <p class="form-success" id="formSuccess" hidden>Merci ! Nous revenons vers vous sous 24h.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <a href="index.html" class="logo" aria-label="DATATOP">
+        <img src="assets/img/logo.png" alt="" class="logo-img" fetchpriority="high" decoding="async" aria-hidden="true" />
+        <span class="logo-wordmark">DATATOP</span>
+      </a>
+      <p>Expert en transformation data et IA. Nous accompagnons les entreprises dans leur digitalisation avec conseil, formation et solutions sur-mesure.</p>
+      <div class="social-links">
+        <a href="https://linkedin.com/company/datatop" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14M8.5 18v-7H6v7h2.5M7.25 9.75a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3M18 18v-4.4c0-1.96-1.06-2.87-2.5-2.87-1.16 0-1.7.64-2 1.1V11H11v7h2.5v-3.8c0-1.05.27-1.7 1.25-1.7s1.25.65 1.25 1.7V18H18z"/></svg></a>
+        <a href="https://twitter.com/datatop" target="_blank" rel="noopener" aria-label="Twitter / X"><svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg></a>
+      </div>
+    </div>
+    <div class="footer-col"><h4>Services</h4><a href="conseil.html">Conseil Stratégique</a><a href="formation.html">Formation Certifiante</a><a href="conseil.html#engineering">Data Engineering</a><a href="conseil.html#ia">IA &amp; Machine Learning</a></div>
+    <div class="footer-col"><h4>Entreprise</h4><a href="a-propos.html">À propos</a><a href="projets.html">Nos Projets</a><a href="carrieres.html">Carrières</a><a href="contact.html">Contact</a></div>
+    <div class="footer-col"><h4>Contact</h4><a href="mailto:contact@datatop.fr">contact@datatop.fr</a><a href="tel:+33695408650">+33 6 95 40 86 50</a><span>Paris, France</span></div>
+  </div>
+  <div class="container footer-bottom">
+    <span>© <span id="year"></span> DATATOP. Tous droits réservés.</span>
+    <div class="legal-links"><a href="mentions-legales.html">Mentions légales</a><a href="confidentialite.html">Confidentialité</a></div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
+<script src="assets/js/script.js" defer></script>
+</body>
+</html>
