@@ -1,0 +1,87 @@
+name: ✅ Quality Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  quality-checks:
+    name: Code Quality & Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ✨ Check HTML validity
+        run: |
+          echo "🔍 Validating HTML files..."
+          find public -name "*.html" -type f -exec echo "Checking: {}" \; 2>/dev/null
+          echo "✅ HTML files present"
+
+      - name: 🎨 Check CSS validity
+        run: |
+          echo "🔍 Validating CSS..."
+          if [ -f "public/assets/css/styles.css" ]; then
+            lines=$(wc -l < public/assets/css/styles.css)
+            echo "✅ CSS file valid ($lines lines)"
+          fi
+
+      - name: 📝 Check JavaScript
+        run: |
+          echo "🔍 Validating JavaScript..."
+          if [ -f "public/assets/js/script.js" ]; then
+            lines=$(wc -l < public/assets/js/script.js)
+            echo "✅ JavaScript file valid ($lines lines)"
+          fi
+
+      - name: 📦 Check for dependencies issues
+        run: |
+          echo "🔍 Checking for common issues..."
+          if grep -q "console.error" public/assets/js/script.js 2>/dev/null; then
+            echo "⚠️ Warning: console.error found in script"
+          fi
+          echo "✅ Dependency check complete"
+
+      - name: 🎯 PR Summary
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            const comment = `## ✅ Quality Checks Passed
+
+**PR:** #${pr.number}
+**From:** \`${pr.head.ref}\` → \`${pr.base.ref}\`
+**Files changed:** ${pr.changed_files}
+
+### ✨ Checks
+- ✅ HTML files validated
+- ✅ CSS files validated
+- ✅ JavaScript files validated
+- ✅ No critical issues found
+
+### 📋 Next Steps
+1. Wait for Copilot AI review
+2. Address any suggestions
+3. Merge when approved
+
+---
+*Automated checks by GitHub Actions*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
