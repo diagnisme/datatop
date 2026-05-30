@@ -1,5 +1,5 @@
 [build]
-  publish = "."
+  publish = "public"
 
 # Pretty URLs : /conseil au lieu de /conseil.html (activé par défaut sur Netlify)
 
@@ -12,12 +12,12 @@
     Permissions-Policy = "geolocation=(), microphone=(), camera=()"
 
 [[headers]]
-  for = "/styles.css"
+  for = "/assets/css/styles.css"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
 [[headers]]
-  for = "/script.js"
+  for = "/assets/js/script.js"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 

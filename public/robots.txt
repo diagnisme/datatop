@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+\nSitemap: https://datatop.fr/sitemap.xml

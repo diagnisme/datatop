@@ -544,13 +544,17 @@
       }, 150);
     };
 
-    // Hover pause (desktop)
-    scroller.addEventListener('mouseenter', () => { paused = true;  },             { passive: true });
-    scroller.addEventListener('mouseleave', () => { paused = false; lastTs = 0; }, { passive: true });
+    // Hover and Touch logic to prevent getting stuck on mobile
+    let isTouch = false;
+
+    scroller.addEventListener('mouseenter', () => { if (!isTouch) paused = true; }, { passive: true });
+    scroller.addEventListener('mouseleave', () => { if (!isTouch) { paused = false; lastTs = 0; } }, { passive: true });
 
     // Touch swipe (mobile) — finger drag advances carousel
     let touchX = 0;
     scroller.addEventListener('touchstart', e => {
+      isTouch = true;
+      paused = true;
       touchX = e.touches[0].clientX;
     }, { passive: true });
     scroller.addEventListener('touchmove', e => {
@@ -560,6 +564,15 @@
       pos      = ((pos + dx) % halfW + halfW) % halfW;
       move(pos);
     }, { passive: true });
+
+    const endTouch = () => {
+      paused = false;
+      lastTs = 0;
+      // Prevent synthesized mouse events from pausing
+      setTimeout(() => isTouch = false, 500);
+    };
+    scroller.addEventListener('touchend', endTouch, { passive: true });
+    scroller.addEventListener('touchcancel', endTouch, { passive: true });
 
     // Use IntersectionObserver so we start when section is actually visible
     // (guarantees images are rendered and scrollWidth is correct)
@@ -610,3 +623,19 @@
   initPageTransitions();
 
 })();
+
+// Email Obfuscation Decoder
+document.addEventListener('DOMContentLoaded', () => {
+  const protectedEmails = document.querySelectorAll('.protected-email');
+  protectedEmails.forEach(span => {
+    span.style.cursor = 'pointer';
+    span.style.textDecoration = 'underline';
+    span.addEventListener('click', () => {
+      const user = span.getAttribute('data-user');
+      const domain = span.getAttribute('data-domain');
+      if (user && domain) {
+        window.location.href = 'mailto:' + user + '@' + domain;
+      }
+    });
+  });
+});
