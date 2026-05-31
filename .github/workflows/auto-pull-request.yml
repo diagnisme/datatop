@@ -1,0 +1,45 @@
+name: Auto Create Pull Request
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-create-pr:
+    name: Create Review Request (PR)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Determine Target Branch
+        id: target
+        run: |
+          # Les features vont vers develop, le reste (develop, hotfix) va vers main
+          if [[ "${{ github.ref_name }}" == feature/* ]]; then
+            echo "branch=develop" >> $GITHUB_OUTPUT
+          else
+            echo "branch=main" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Pull Request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Vérifier si une PR existe déjà pour éviter les doublons
+          PR_COUNT=$(gh pr list --head ${{ github.ref_name }} --base ${{ steps.target.outputs.branch }} --state open --json number --jq 'length')
+          
+          if [ "$PR_COUNT" -eq "0" ]; then
+            gh pr create \
+              --base ${{ steps.target.outputs.branch }} \
+              --head ${{ github.ref_name }} \
+              --title "Review request: ${{ github.ref_name }} ➡️ ${{ steps.target.outputs.branch }}" \
+              --body "Cette Pull Request a été générée automatiquement pour exiger une revue de code avant de fusionner les modifications." || echo "PR non créée (aucun changement détecté ou erreur ignorée)."
+          else
+            echo "Une Pull Request est déjà ouverte pour cette branche."
+          fi

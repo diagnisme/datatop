@@ -700,3 +700,69 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+
+// ==============================================================================
+// 🚀 SUPABASE ANALYTICS TRACKING
+// ==============================================================================
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    // Import dynamique (ne bloque pas le chargement visuel du site)
+    const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+    const supabaseUrl = 'https://bugmdnowmtyiftujfhmm.supabase.co';
+    const supabaseKey = 'sb_publishable_Ir0Rf5tsxTtClH4XxbtomA_qmoAE-lp';
+    window.supabaseClient = createClient(supabaseUrl, supabaseKey);
+
+    // Génération ID Session unique
+    window.datatopSessionId = localStorage.getItem('datatop_session_id');
+    if (!window.datatopSessionId) {
+      window.datatopSessionId = crypto.randomUUID ? crypto.randomUUID() : 'session-' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('datatop_session_id', window.datatopSessionId);
+    }
+
+    // Moteur de capture
+    window.trackEvent = async function(eventType, additionalData = {}) {
+      if (!window.supabaseClient) return;
+      const urlParams = new URLSearchParams(window.location.search);
+      try {
+        await window.supabaseClient.from('analytics_events').insert([{ 
+          event_type: eventType,
+          session_id: window.datatopSessionId,
+          url: window.location.href, 
+          path: window.location.pathname,
+          user_agent: navigator.userAgent,
+          referrer: document.referrer,
+          language: navigator.language,
+          screen_width: window.screen ? window.screen.width : null,
+          viewport_width: window.innerWidth,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          utm_source: urlParams.get('utm_source'),
+          utm_campaign: urlParams.get('utm_campaign'),
+          ...additionalData
+        }]);
+      } catch (err) {}
+    };
+
+    // Traquer page vue et scroll de base
+    window.trackEvent('page_view');
+    
+    const pageLoadTime = Date.now();
+    window.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        window.trackEvent('page_leave', { duration: Math.round((Date.now() - pageLoadTime) / 1000) });
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      const target = e.target.closest('a, button');
+      if (target && window.trackEvent) {
+        window.trackEvent('click', {
+          target_text: (target.innerText || '').substring(0, 100).trim(),
+          target_href: target.href || null
+        });
+      }
+    });
+
+  } catch (error) {
+    console.log("Supabase analytics bypassé (Mode hors-ligne ou bloqueur actif)");
+  }
+});
