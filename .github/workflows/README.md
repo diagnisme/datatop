@@ -29,7 +29,7 @@ Fichier: `.github/workflows/pr-automation.yml`
 - Fait:
   - Valide la branche cible
   - Ajoute des labels automatiques
-  - Demande les reviews
+  
   - Applique les règles de branching
 
 ## Flux complet d'une PR
@@ -45,12 +45,10 @@ Fichier: `.github/workflows/pr-automation.yml`
 
 4. Workflows se déclenchent automatiquement:
    - Quality Checks (validation du code)
-   - Copilot Review (review AI)
    - PR Automation (labels et checks)
 
 5. Résultats affichés dans la PR:
    - Quality checks passed
-   - AI review comments
    - Labels appliquées automatiquement
 
 6. Examiner les commentaires et suggestions
