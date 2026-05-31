@@ -247,93 +247,117 @@
   }
 
   // ============================================================
-  // EmailJS — Configuration
-  // 1. Créez un compte gratuit sur https://www.emailjs.com
-  // 2. Email Services → Add New Service → Gmail → connecter datatop@gmail.com
-  //    → copiez le Service ID ci-dessous
-  // 3. Email Templates → Create New Template (×2 : contact + carrieres)
-  //    → collez le HTML des fichiers email-template-contact.html
-  //      et email-template-carrieres.html dans le champ "Body (HTML)"
-  //    → Template CONTACT   : Subject = [DATATOP] Nouveau message de {{from_name}}
-  //                           To      = diagneplus@gmail.com, contact@datatop.fr
-  //    → Template CARRIERES : Subject = [DATATOP] Candidature {{position}} — {{from_name}}
-  //                           To      = recrutement@datatop.fr
-  //    → copiez les Template IDs ci-dessous
-  // 4. Account → General → copiez la Public Key ci-dessous
+  // Formulaires : Validation UX + Netlify + Supabase CRM
   // ============================================================
-  const EJS_KEY           = '8XU68Gu9lqyU0_ycX';
-  const EJS_SERVICE       = 'service_ohhhwho';
-  const EJS_TPL_CONTACT   = 'template_mlughnx';
-  const EJS_TPL_CARRIERES = 'template_mlughnx';
-
-  if (typeof emailjs !== 'undefined') emailjs.init(EJS_KEY);
-
-  const fmtDate = () => new Date().toLocaleString('fr-FR', {
-    day: '2-digit', month: 'long', year: 'numeric',
-    hour: '2-digit', minute: '2-digit'
-  });
-
-  const resetForm = (f) => {
-    f.reset();
-    if (cvInput) {
-      cvInput.classList.remove('has-file');
-      const fn = cvInput.querySelector('.file-name');
-      if (fn) fn.textContent = 'Aucun fichier sélectionné';
-    }
-  };
-
-  const form    = document.getElementById('contactForm');
-  const success = document.getElementById('formSuccess');
+  const form = document.getElementById('contactForm');
 
   if (form) {
+    form.setAttribute('novalidate', 'true'); // Désactive la validation native du navigateur
+
     form.addEventListener('submit', async e => {
       e.preventDefault();
-      const btn   = form.querySelector('button[type="submit"]');
-      const label = btn?.querySelector('span');
-      const orig  = label ? label.textContent : btn?.textContent;
+      
+      const btn = form.querySelector('button[type="submit"]');
+      const origText = btn ? btn.innerHTML : 'Envoyer';
 
-      if (btn)   { btn.disabled = true; btn.style.opacity = '.65'; }
-      if (label) label.textContent = 'Envoi en cours…';
+      // --- DÉBUT VALIDATION UX STYLISÉE ---
+      form.querySelectorAll('.custom-error-msg').forEach(el => el.remove());
+      form.querySelectorAll('.error-border').forEach(el => el.classList.remove('error-border'));
 
-      const fd   = new FormData(form);
+      let hasError = false;
+      let firstErrorElement = null;
+      let errorMessages = [];
+
+      form.querySelectorAll('input, textarea, select').forEach(input => {
+        const isEmpty = !input.value.trim();
+        const isRequired = input.hasAttribute('required');
+        const isEmail = input.type === 'email';
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (isRequired && isEmpty) {
+          hasError = true;
+          input.classList.add('error-border');
+          if (!firstErrorElement) firstErrorElement = input;
+          const fieldName = (input.getAttribute('placeholder') || input.getAttribute('name') || 'Ce champ').replace('*', '').trim();
+          errorMessages.push(`Le champ <strong>${fieldName}</strong> est obligatoire.`);
+        } else if (isEmail && !isEmpty && !emailRegex.test(input.value.trim())) {
+          hasError = true;
+          input.classList.add('error-border');
+          if (!firstErrorElement) firstErrorElement = input;
+          errorMessages.push(`L'adresse email renseignée n'est pas valide.`);
+        }
+      });
+
+      if (hasError) {
+        if (!document.getElementById('form-error-styles')) {
+          document.head.insertAdjacentHTML('beforeend', `<style id="form-error-styles">.error-border { border: 1px solid #ff4757 !important; background-color: rgba(255, 71, 87, 0.05) !important; transition: all 0.3s ease; }</style>`);
+        }
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'custom-error-msg';
+        errorDiv.style.cssText = 'padding: 20px; background: rgba(255, 71, 87, 0.1); border-left: 4px solid #ff4757; border-radius: 8px; margin-bottom: 20px; text-align: left;';
+        errorDiv.innerHTML = `
+          <h4 style="margin-top: 0; color: #ff4757; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            Informations manquantes
+          </h4>
+          <ul style="margin-bottom: 0; color: #fff; padding-left: 20px; line-height: 1.5; font-size: 0.95rem;">
+            ${errorMessages.map(msg => `<li style="margin-bottom: 5px;">${msg}</li>`).join('')}
+          </ul>
+        `;
+        if (btn) form.insertBefore(errorDiv, btn);
+        else form.appendChild(errorDiv);
+        if (firstErrorElement) firstErrorElement.focus();
+        return;
+      }
+      // --- FIN VALIDATION UX ---
+
+      if (btn) { btn.disabled = true; btn.innerHTML = '<span>Envoi en cours...</span>'; btn.style.opacity = '0.7'; }
+
+      const fd = new FormData(form);
       const data = Object.fromEntries(fd.entries());
-      const isCarrieres = !!data.position;
-
-      const params = {
-        // Variables correspondant au template EmailJS
-        name:       data.name     || '',
-        email:      data.email    || '',
-        time:       fmtDate(),
-        message:    data.message  || '',
-        title:      data.subject  || data.position || 'Nouveau message',
-        // Champs supplémentaires (à ajouter dans le template si besoin)
-        phone:      data.phone    || 'Non renseigné',
-        company:    data.company  || 'Non renseignée',
-        position:   data.position || '',
-        link:       data.link     || 'Non renseigné',
-        // Alias pour compatibilité HTML template
-        from_name:  data.name     || '',
-        from_email: data.email    || '',
-        date:       fmtDate(),
-        subject:    data.subject  || data.position || 'Nouveau message',
-      };
+      const isCarrieres = !!data.position || window.location.pathname.includes('carrieres');
+      const formName = form.getAttribute('name') || (isCarrieres ? 'candidature' : 'contact');
+      
+      fd.append('form-name', formName); // Tag obligatoire pour Netlify
 
       try {
-        if (typeof emailjs === 'undefined') throw new Error('SDK non chargé');
-        if (EJS_KEY === 'VOTRE_PUBLIC_KEY') throw new Error('EmailJS non configuré — remplacez les clés dans script.js');
-        await emailjs.send(EJS_SERVICE, isCarrieres ? EJS_TPL_CARRIERES : EJS_TPL_CONTACT, params);
+        // 1. Envoi asynchrone natif vers Netlify
+        await fetch('/', {
+          method: 'POST',
+          body: fd
+        });
 
-        resetForm(form);
-        if (success) {
-          success.hidden = false;
-          setTimeout(() => { success.hidden = true; }, 6000);
+        // 2. Sauvegarde silencieuse dans Supabase (CRM / RH)
+        if (window.supabaseClient && data.email) {
+          const tableName = isCarrieres ? 'candidatures' : 'contacts';
+          const payload = { 
+            name: data.name || '', 
+            email: data.email || '', 
+            message: data.message || '', 
+            session_id: window.datatopSessionId || null 
+          };
+          if (isCarrieres) payload.role = data.position || 'Candidature spontanée';
+          else payload.form_type = data.subject || formName;
+          
+          await window.supabaseClient.from(tableName).insert([payload]);
+          if (window.trackEvent) window.trackEvent('form_submit', { target_text: payload.form_type || payload.role });
         }
+
+        // 3. Message de succès haut de gamme
+        const firstName = (data.name || '').split(' ')[0] || 'Monsieur/Madame';
+        form.innerHTML = `
+          <div style="padding: 30px; background: rgba(0, 217, 255, 0.05); border-left: 4px solid var(--cyan, #00D9FF); border-radius: 8px; text-align: left; margin-top: 20px;">
+            <h3 style="margin-top: 0; color: var(--cyan, #00D9FF); font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              Message envoyé avec succès !
+            </h3>
+            <p style="margin-bottom: 0; font-size: 1.1rem; line-height: 1.6; color: var(--white, #fff);">Merci <strong>${firstName}</strong>.<br/>Votre demande a bien été transmise. Notre équipe prendra le temps d'étudier vos besoins avec soin pour vous apporter une réponse personnalisée très prochainement.</p>
+          </div>
+        `;
       } catch (err) {
-        console.error('Erreur envoi EmailJS :', err.message || err);
-        alert('Erreur lors de l\'envoi. Veuillez réessayer ou écrire directement à contact@datatop.fr\n\n' + (err.message || ''));
-      } finally {
-        if (btn)   { btn.disabled = false; btn.style.opacity = '1'; }
-        if (label) label.textContent = orig;
+        console.error('Erreur lors de la soumission :', err);
+        alert("Erreur lors de l'envoi. Veuillez vérifier votre connexion et réessayer.");
+        if (btn) { btn.disabled = false; btn.innerHTML = origText; btn.style.opacity = '1'; }
       }
     });
   }
@@ -677,7 +701,7 @@
       link.addEventListener('click', e => {
         e.preventDefault();
         veil.classList.remove('revealed');         // fade to dark
-        setTimeout(() => { window.location.href = href; }, 500);
+        setTimeout(() => { window.location.href = href; }, 200);
       });
     });
   };
