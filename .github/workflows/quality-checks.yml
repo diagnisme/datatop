@@ -44,7 +44,8 @@ jobs:
             lines=$(wc -l < public/assets/js/script.js)
             echo "JavaScript file valid ($lines lines)"
           fi
-
+        
+          
       - name: Check for dependencies issues
         run: |
           echo "Checking for common issues..."
