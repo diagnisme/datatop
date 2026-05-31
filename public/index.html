@@ -55,6 +55,140 @@
 
       gtag('config', 'G-Z4KLVJCFVK');
     </script>
+
+    
+    
+    
+    
+    <!-- Supabase Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      const supabaseUrl = 'https://bugmdnowmtyiftujfhmm.supabase.co';
+      const supabaseKey = 'sb_publishable_Ir0Rf5tsxTtClH4XxbtomA_qmoAE-lp';
+      const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+      // Générer ou récupérer un identifiant de session anonyme
+      let sessionId = localStorage.getItem('datatop_session_id');
+      if (!sessionId) {
+        sessionId = crypto.randomUUID ? crypto.randomUUID() : 'session-' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('datatop_session_id', sessionId);
+      }
+
+      // Fonction pour traquer les événements
+      async function trackEvent(eventType, additionalData = {}) {
+        const urlParams = new URLSearchParams(window.location.search);
+        try {
+          const { error } = await supabaseClient
+            .from('analytics_events')
+            .insert([
+              { 
+                event_type: eventType,
+                session_id: sessionId,
+                url: window.location.href, 
+                path: window.location.pathname,
+                user_agent: navigator.userAgent,
+                referrer: document.referrer,
+                language: navigator.language,
+                screen_width: window.screen ? window.screen.width : null,
+                screen_height: window.screen ? window.screen.height : null,
+                viewport_width: window.innerWidth,
+                viewport_height: window.innerHeight,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                utm_source: urlParams.get('utm_source'),
+                utm_medium: urlParams.get('utm_medium'),
+                utm_campaign: urlParams.get('utm_campaign'),
+                utm_term: urlParams.get('utm_term'),
+                utm_content: urlParams.get('utm_content'),
+                ...additionalData
+              }
+            ]);
+          if (error) console.error('Erreur Supabase:', error);
+        } catch (err) {
+          console.error('Erreur de tracking:', err);
+        }
+      }
+
+      // Traquer les pages vues
+      window.addEventListener('load', () => trackEvent('page_view'));
+
+      // Traquer le scroll (25%, 50%, 75%, 90%)
+      const scrolledTiers = new Set();
+      window.addEventListener('scroll', () => {
+        const scrollHeight = Math.max(1, document.documentElement.scrollHeight);
+        const scrollPercent = Math.round((window.scrollY + window.innerHeight) / scrollHeight * 100);
+        [25, 50, 75, 90].forEach(tier => {
+          if (scrollPercent >= tier && !scrolledTiers.has(tier)) {
+            scrolledTiers.add(tier);
+            trackEvent('scroll_depth', { scroll_depth: tier });
+          }
+        });
+      }, { passive: true });
+
+      // Traquer le temps passé à la sortie de la page
+      const pageLoadTime = Date.now();
+      window.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') {
+          const timeSpent = Math.round((Date.now() - pageLoadTime) / 1000);
+          trackEvent('page_leave', { duration: timeSpent });
+        }
+      });
+
+      // Traquer les clics sur les liens et boutons
+      document.addEventListener('click', (e) => {
+        const target = e.target.closest('a, button');
+        if (target) {
+          trackEvent('click', {
+            target_text: (target.innerText || '').substring(0, 100).trim(),
+            target_href: target.href || null
+          });
+        }
+      });
+
+      // Intercepter les soumissions de formulaires (Netlify)
+      document.addEventListener('submit', async (e) => {
+        const form = e.target;
+        if (form.tagName === 'FORM') {
+          const formData = new FormData(form);
+          const formType = form.getAttribute('name') || 'contact';
+          const name = formData.get('name') || '';
+          const email = formData.get('email') || '';
+          const message = (formData.get('message') || '').substring(0, 1000); // Limiter la taille
+          
+          trackEvent('form_submit', { target_text: formType });
+
+          if (email) {
+            try {
+              // Si le formulaire est sur la page carrières ou s'appelle candidature
+              if (formType.toLowerCase().includes('candidature') || window.location.pathname.includes('carrieres')) {
+                const role = formData.get('role') || formData.get('poste') || 'Candidature spontanée';
+                await supabaseClient
+                  .from('candidatures')
+                  .insert([{
+                    role: role,
+                    name: name,
+                    email: email,
+                    message: message,
+                    session_id: sessionId
+                  }]);
+              } else {
+                // Sinon, c'est un contact commercial ou standard
+                await supabaseClient
+                  .from('contacts')
+                  .insert([{
+                    form_type: formType,
+                    name: name,
+                    email: email,
+                    message: message,
+                    session_id: sessionId
+                  }]);
+              }
+            } catch (err) {
+              console.error('Erreur Supabase Formulaire:', err);
+            }
+          }
+        }
+      });
+    </script>
 </head>
 <body class="is-home">
 <!-- NAV -->

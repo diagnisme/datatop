@@ -335,3 +335,4 @@ Voir **MAINTENANCE.md** pour les procédures détaillées.
 **Statut du site** : Production  
 **Dernière mise à jour** : 2026-05-30  
 **Version** : 3.0
+
