@@ -1,4 +1,4 @@
-name: ✅ Quality Checks
+name: Quality Checks
 
 on:
   workflow_dispatch:
@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   quality-checks:
-    name: Code Quality & Validation
+    name: Code Quality and Validation
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -23,57 +23,57 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: ✨ Check HTML validity
+      - name: Check HTML validity
         run: |
-          echo "🔍 Validating HTML files..."
+          echo "Validating HTML files..."
           find public -name "*.html" -type f -exec echo "Checking: {}" \; 2>/dev/null
-          echo "✅ HTML files present"
+          echo "HTML files present"
 
-      - name: 🎨 Check CSS validity
+      - name: Check CSS validity
         run: |
-          echo "🔍 Validating CSS..."
+          echo "Validating CSS..."
           if [ -f "public/assets/css/styles.css" ]; then
             lines=$(wc -l < public/assets/css/styles.css)
-            echo "✅ CSS file valid ($lines lines)"
+            echo "CSS file valid ($lines lines)"
           fi
 
-      - name: 📝 Check JavaScript
+      - name: Check JavaScript
         run: |
-          echo "🔍 Validating JavaScript..."
+          echo "Validating JavaScript..."
           if [ -f "public/assets/js/script.js" ]; then
             lines=$(wc -l < public/assets/js/script.js)
-            echo "✅ JavaScript file valid ($lines lines)"
+            echo "JavaScript file valid ($lines lines)"
           fi
 
-      - name: 📦 Check for dependencies issues
+      - name: Check for dependencies issues
         run: |
-          echo "🔍 Checking for common issues..."
+          echo "Checking for common issues..."
           if grep -q "console.error" public/assets/js/script.js 2>/dev/null; then
-            echo "⚠️ Warning: console.error found in script"
+            echo "Warning: console.error found in script"
           fi
-          echo "✅ Dependency check complete"
+          echo "Dependency check complete"
 
-      - name: 🎯 PR Summary
+      - name: PR Summary
         if: always()
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const pr = context.payload.pull_request;
-            const comment = `## ✅ Quality Checks Passed
+            const comment = `## Quality Checks Passed
 
 **PR:** #${pr.number}
-**From:** \`${pr.head.ref}\` → \`${pr.base.ref}\`
+**From:** \`${pr.head.ref}\` to \`${pr.base.ref}\`
 **Files changed:** ${pr.changed_files}
 
-### ✨ Checks
-- ✅ HTML files validated
-- ✅ CSS files validated
-- ✅ JavaScript files validated
-- ✅ No critical issues found
+### Checks
+- HTML files validated
+- CSS files validated
+- JavaScript files validated
+- No critical issues found
 
-### 📋 Next Steps
-1. Wait for Copilot AI review
+### Next Steps
+1. Wait for code review from a team member
 2. Address any suggestions
 3. Merge when approved
 

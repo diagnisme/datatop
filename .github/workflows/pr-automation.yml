@@ -1,0 +1,46 @@
+name: PR Automation
+
+on:
+  pull_request:
+    types: [opened, ready_for_review, reopened]
+
+permissions:
+  pull-requests: write
+  issues: write
+
+jobs:
+  manage-pr:
+    name: Manage PR Review Request
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assign PR author and add needs review label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            
+            // Assign the author of the PR if no one is assigned
+            if (pr.assignees && pr.assignees.length === 0) {
+              await github.rest.issues.addAssignees({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                assignees: [pr.user.login]
+              });
+            }
+            
+            // Add a "needs review" label to notify reviewers
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['needs review']
+            });
+
+            // Post a friendly comment
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `Hello @${pr.user.login}! Thank you for your Pull Request. It has been marked for review. A team member will look at it shortly.`
+            });
