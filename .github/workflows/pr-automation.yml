@@ -21,12 +21,17 @@ jobs:
             
             // Assign the author of the PR if no one is assigned
             if (pr.assignees && pr.assignees.length === 0) {
-              await github.rest.issues.addAssignees({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                assignees: [pr.user.login]
-              });
+              // Ne pas assigner si l'auteur est un bot (ex: github-actions[bot])
+              if (!pr.user.login.includes('[bot]')) {
+                await github.rest.issues.addAssignees({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  assignees: [pr.user.login]
+                });
+              } else {
+                console.log("Le créateur est un bot, assignation ignorée pour éviter le crash.");
+              }
             }
             
             // Add a "needs review" label to notify reviewers
