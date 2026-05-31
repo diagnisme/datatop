@@ -43,6 +43,8 @@
     
     
     
+    
+    
     <!-- Supabase Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
@@ -127,10 +129,94 @@
         }
       });
 
-      // Intercepter les soumissions de formulaires (Netlify)
+      // Intercepter les soumissions de formulaires (Netlify + Supabase + UX Pro)
+      
+      // Désactiver la validation native du navigateur pour utiliser nos propres alertes stylisées
+      window.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('form[data-netlify]').forEach(form => {
+          form.setAttribute('novalidate', 'true');
+        });
+      });
+
       document.addEventListener('submit', async (e) => {
         const form = e.target;
-        if (form.tagName === 'FORM') {
+        if (form.tagName === 'FORM' && form.hasAttribute('data-netlify')) {
+          e.preventDefault(); // Empêcher le rechargement de la page
+
+          // --- DÉBUT VALIDATION STYLISÉE ---
+          // Nettoyer les anciennes erreurs
+          form.querySelectorAll('.custom-error-msg').forEach(el => el.remove());
+          form.querySelectorAll('.error-border').forEach(el => el.classList.remove('error-border'));
+
+          let hasError = false;
+          let firstErrorElement = null;
+          let errorMessages = [];
+
+          // Vérifier tous les champs
+          const inputs = form.querySelectorAll('input, textarea, select');
+          inputs.forEach(input => {
+            const isEmpty = !input.value.trim();
+            const isRequired = input.hasAttribute('required');
+            const isEmail = input.type === 'email';
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+            if (isRequired && isEmpty) {
+              hasError = true;
+              input.classList.add('error-border');
+              if (!firstErrorElement) firstErrorElement = input;
+              let fieldName = input.getAttribute('placeholder') || input.getAttribute('name') || 'Un champ';
+              fieldName = fieldName.replace('*', '').trim(); // Enlever l'astérisque si présent
+              errorMessages.push(`Le champ <strong>${fieldName}</strong> est obligatoire.`);
+            } else if (isEmail && !isEmpty && !emailRegex.test(input.value.trim())) {
+              hasError = true;
+              input.classList.add('error-border');
+              if (!firstErrorElement) firstErrorElement = input;
+              errorMessages.push(`L'adresse email renseignée n'est pas valide.`);
+            }
+          });
+
+          if (hasError) {
+            // Ajouter les styles d'erreur s'ils n'existent pas
+            if (!document.getElementById('form-error-styles')) {
+              const style = document.createElement('style');
+              style.id = 'form-error-styles';
+              style.innerHTML = `.error-border { border: 1px solid #ff4757 !important; background-color: rgba(255, 71, 87, 0.05) !important; transition: all 0.3s ease; }`;
+              document.head.appendChild(style);
+            }
+
+            // Créer le message d'erreur stylisé
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'custom-error-msg';
+            errorDiv.style.cssText = 'padding: 20px; background: rgba(255, 71, 87, 0.1); border-left: 4px solid #ff4757; border-radius: 8px; margin-bottom: 20px; text-align: left;';
+            errorDiv.innerHTML = `
+              <h4 style="margin-top: 0; color: #ff4757; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                Informations manquantes
+              </h4>
+              <ul style="margin-bottom: 0; color: #fff; padding-left: 20px; line-height: 1.5; font-size: 0.95rem;">
+                ${errorMessages.map(msg => `<li style="margin-bottom: 5px;">${msg}</li>`).join('')}
+              </ul>
+            `;
+            
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+              form.insertBefore(errorDiv, submitBtn);
+            } else {
+              form.appendChild(errorDiv);
+            }
+            
+            if (firstErrorElement) firstErrorElement.focus();
+            return; // Arrêter l'envoi car il y a des erreurs
+          }
+          // --- FIN VALIDATION STYLISÉE ---
+
+          // Feedback UX : Bouton de chargement
+          const submitBtn = form.querySelector('button[type="submit"]');
+          if (submitBtn) {
+            submitBtn.innerText = 'Envoi en cours...';
+            submitBtn.disabled = true;
+          }
+
           const formData = new FormData(form);
           const formType = form.getAttribute('name') || 'contact';
           const name = formData.get('name') || '';
@@ -139,35 +225,44 @@
           
           trackEvent('form_submit', { target_text: formType });
 
-          if (email) {
-            try {
-              // Si le formulaire est sur la page carrières ou s'appelle candidature
-              if (formType.toLowerCase().includes('candidature') || window.location.pathname.includes('carrieres')) {
-                const role = formData.get('role') || formData.get('poste') || 'Candidature spontanée';
-                await supabaseClient
-                  .from('candidatures')
-                  .insert([{
-                    role: role,
-                    name: name,
-                    email: email,
-                    message: message,
-                    session_id: sessionId
-                  }]);
-              } else {
-                // Sinon, c'est un contact commercial ou standard
-                await supabaseClient
-                  .from('contacts')
-                  .insert([{
-                    form_type: formType,
-                    name: name,
-                    email: email,
-                    message: message,
-                    session_id: sessionId
-                  }]);
-              }
-            } catch (err) {
-              console.error('Erreur Supabase Formulaire:', err);
+          try {
+            // 1. Enregistrement garanti dans Supabase
+            if (email) {
+              const isCareer = formType.toLowerCase().includes('candidature') || window.location.pathname.includes('carrieres');
+              const tableName = isCareer ? 'candidatures' : 'contacts';
+              const payload = { name, email, message, session_id: sessionId };
+              
+              if (isCareer) payload.role = formData.get('role') || formData.get('poste') || 'Candidature spontanée';
+              else payload.form_type = formType;
+
+              await supabaseClient.from(tableName).insert([payload]);
             }
+
+            // 2. Envoi silencieux à Netlify
+            formData.append('form-name', formType); // Sécurité requise par l'API Netlify
+            await fetch('/', {
+              method: 'POST',
+              body: formData
+            });
+
+            // 3. Affichage d'un beau message de succès (Design System)
+            const firstName = name.split(' ')[0] || 'Monsieur/Madame';
+            form.innerHTML = `
+              <div style="padding: 30px; background: rgba(0, 217, 255, 0.05); border-left: 4px solid var(--cyan, #00D9FF); border-radius: 8px; text-align: left; margin-top: 20px;">
+                <h3 style="margin-top: 0; color: var(--cyan, #00D9FF); font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                  Message envoyé avec succès !
+                </h3>
+                <p style="margin-bottom: 0; font-size: 1.1rem; line-height: 1.6; color: var(--white, #fff);">Merci <strong>${firstName}</strong>.<br/>Votre demande a été transmise en toute sécurité. Notre équipe d'experts prendra le temps d'étudier vos besoins avec soin pour vous apporter une réponse personnalisée très prochainement.</p>
+              </div>
+            `;
+          } catch (err) {
+            console.error('Erreur de soumission:', err);
+            if (submitBtn) {
+              submitBtn.innerText = 'Erreur. Réessayer ?';
+              submitBtn.disabled = false;
+            }
+            alert("Une erreur inattendue est survenue lors de l'envoi. Veuillez vérifier votre connexion.");
           }
         }
       });
