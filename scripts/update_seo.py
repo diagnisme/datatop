@@ -58,13 +58,24 @@ def update_html_file(file_path):
             tag = soup.new_tag('meta', attrs={'name': name, 'content': content})
             head.append(tag)
             
-    # Add dummy analytics if not exists
-    if not soup.find(string=lambda text: isinstance(text, str) and 'gtag' in text):
-        script1 = soup.new_tag('script', async_=True, src='https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX')
-        script2 = soup.new_tag('script')
-        script2.string = "window.dataLayer = window.dataLayer || [];\n  function gtag(){dataLayer.push(arguments);}\n  gtag('js', new Date());\n  gtag('config', 'G-XXXXXXXXXX');"
-        head.append(script1)
-        head.append(script2)
+    # Remove dummy analytics if it exists
+    for tag in soup.find_all('script'):
+        if (tag.string and 'G-XXXXXXXXXX' in tag.string) or (tag.get('src') and 'G-XXXXXXXXXX' in tag.get('src')):
+            tag.decompose()
+
+    # Add Google Tag Manager if not exists
+    if not soup.find(string=lambda text: isinstance(text, str) and 'GTM-MZ5WKGGT' in text):
+        gtm_script = soup.new_tag('script')
+        gtm_script.string = "(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':\nnew Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],\nj=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=\n'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);\n})(window,document,'script','dataLayer','GTM-MZ5WKGGT');"
+        head.insert(0, gtm_script)
+        
+    # Add Google Tag Manager (noscript) in body if not exists
+    body = soup.body
+    if body and not body.find('iframe', src=lambda s: s and 'GTM-MZ5WKGGT' in s):
+        noscript = soup.new_tag('noscript')
+        iframe = soup.new_tag('iframe', src='https://www.googletagmanager.com/ns.html?id=GTM-MZ5WKGGT', height='0', width='0', style='display:none;visibility:hidden')
+        noscript.append(iframe)
+        body.insert(0, noscript)
 
     # Schema.org JSON-LD for index.html only
     if file_path == 'index.html' and not soup.find('script', type='application/ld+json'):

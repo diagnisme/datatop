@@ -2,35 +2,25 @@
 
 ## Workflows Automatiques
 
-Ce projet utilise 3 workflows GitHub Actions qui se déclenchent automatiquement sur les Pull Requests.
+Ce projet utilise 2 workflows GitHub Actions qui se déclenchent automatiquement à chaque Push et sur les Pull Requests.
 
 ### 1. Copilot AI Review
 Fichier: `.github/workflows/copilot-review.yml`
 
-- Quand: Automatiquement quand une PR est ouverte ou mise à jour
+- Quand: Automatiquement à chaque push et quand une PR est ouverte ou mise à jour
 - Fait: Demande une review AI avec GitHub Copilot
 - Résultat: Commentaires de review intelligent dans la PR
 
 ### 2. Quality Checks
 Fichier: `.github/workflows/quality-checks.yml`
 
-- Quand: Automatiquement sur toute PR
+- Quand: Automatiquement à chaque push, sur toute PR, ou déclenchement manuel
 - Fait:
   - Valide les fichiers HTML
   - Vérifie le CSS
   - Valide le JavaScript
   - Ajoute un résumé dans la PR
 - Résultat: Rapport de qualité avec statut de validation
-
-### 3. PR Automation
-Fichier: `.github/workflows/pr-automation.yml`
-
-- Quand: À chaque PR
-- Fait:
-  - Valide la branche cible
-  - Ajoute des labels automatiques
-  - Demande les reviews
-  - Applique les règles de branching
 
 ## Flux complet d'une PR
 
@@ -46,12 +36,10 @@ Fichier: `.github/workflows/pr-automation.yml`
 4. Workflows se déclenchent automatiquement:
    - Quality Checks (validation du code)
    - Copilot Review (review AI)
-   - PR Automation (labels et checks)
 
 5. Résultats affichés dans la PR:
    - Quality checks passed
    - AI review comments
-   - Labels appliquées automatiquement
 
 6. Examiner les commentaires et suggestions
 
@@ -71,21 +59,11 @@ Copilot AI Review
 - Suggestion 2: Optimize animation timing
 - etc...
 
-Labels: feature, staging, enhancement
-
 ## Configuration
 
 Branches automatisées
 - develop: Déclenche tous les workflows
 - main: Déclenche tous les workflows avec checks production
-
-Labels automatiques
-- feat/ dans le branch: label feature
-- fix/ dans le branch: label bug-fix
-- perf/ dans le branch: label performance
-- docs/ dans le branch: label documentation
-- PR vers develop: label staging
-- PR vers main: label release
 
 ## Bonus: Require Checks Avant Merge
 
@@ -106,4 +84,3 @@ Les workflows ont besoin:
 - Branche develop créée
 
 Tout est prêt!
-
