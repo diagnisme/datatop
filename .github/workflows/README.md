@@ -2,14 +2,14 @@
 
 ## Workflows Automatiques
 
-Ce projet utilise 2 workflows GitHub Actions qui se déclenchent automatiquement à chaque Push et sur les Pull Requests.
+Ce projet utilise 2 workflows GitHub Actions qui se déclenchent automatiquement sur les Pull Requests.
 
-### 1. Copilot AI Review
-Fichier: `.github/workflows/copilot-review.yml`
+### 1. PR Automation
+Fichier: `.github/workflows/pr-automation.yml`
 
-- Quand: Automatiquement à chaque push et quand une PR est ouverte ou mise à jour
-- Fait: Demande une review AI avec GitHub Copilot
-- Résultat: Commentaires de review intelligent dans la PR
+- Quand: Automatiquement quand une PR est ouverte ou mise à jour
+- Fait: Assigne l'auteur, ajoute un label "needs review" et publie un commentaire pour notifier l'équipe.
+- Résultat: La PR est prête pour une revue de code par un membre de l'équipe.
 
 ### 2. Quality Checks
 Fichier: `.github/workflows/quality-checks.yml`
@@ -34,16 +34,17 @@ Fichier: `.github/workflows/quality-checks.yml`
    feat/ma-feature vers develop (ou main)
 
 4. Workflows se déclenchent automatiquement:
+   - PR Automation (gestion des revues)
    - Quality Checks (validation du code)
-   - Copilot Review (review AI)
 
 5. Résultats affichés dans la PR:
-   - Quality checks passed
-   - AI review comments
+   - Le créateur de la PR est assigné
+   - Le label "needs review" est ajouté
+   - Le rapport Quality checks passed est affiché
 
-6. Examiner les commentaires et suggestions
+6. Attendre la revue de code par un membre de l'équipe
 
-7. Merger quand prêt
+7. Merger après approbation
 
 ## Exemple de PR
 
@@ -53,11 +54,7 @@ Quality Checks Passed
 - HTML files validated
 - CSS files validated
 - JavaScript files validated
-
-Copilot AI Review
-- Suggestion 1: Consider using CSS variables for colors
-- Suggestion 2: Optimize animation timing
-- etc...
+- No critical issues found
 
 ## Configuration
 
@@ -83,4 +80,4 @@ Les workflows ont besoin:
 - GitHub Actions activé (par défaut)
 - Branche develop créée
 
-Tout est prêt!
+Tout est prêt.
