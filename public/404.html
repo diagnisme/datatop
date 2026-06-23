@@ -1,73 +1,61 @@
 <!doctype html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Page non trouvée - DATATOP</title>
-    <meta
-      name="description"
-      content="La page que vous cherchez n'existe pas ou a été déplacée."
-    />
-    <link rel="stylesheet" href="assets/css/styles.css" />
 
-    <!-- Google tag (gtag.js) -->
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-Z4KLVJCFVK"
-    ></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Page non trouvée - DATATOP</title>
+  <meta name="description" content="La page que vous cherchez n'existe pas ou a été déplacée." />
+  <link rel="stylesheet" href="assets/css/styles.css" />
 
-      gtag("config", "G-Z4KLVJCFVK");
-    </script>
-  </head>
-  <body class="is-home">
-    <header class="nav" id="nav">
-      <div class="container nav-inner">
-        <a href="index.html" class="logo">
-          <span
-            class="logo-wordmark"
-            style="
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z4KLVJCFVK"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag("js", new Date());
+
+    gtag("config", "G-Z4KLVJCFVK");
+  </script>
+</head>
+
+<body class="is-home">
+  <header class="nav" id="nav">
+    <div class="container nav-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-wordmark" style="
               display: block;
               color: #fff;
               font-size: 24px;
               font-weight: 800;
-            "
-            >DATATOP</span
-          >
-        </a>
-      </div>
-    </header>
-    <main>
-      <section
-        class="hero"
-        style="
+            ">DATATOP</span>
+      </a>
+    </div>
+  </header>
+  <main>
+    <section class="hero" style="
           min-height: 100vh;
           display: flex;
           align-items: center;
           justify-content: center;
           text-align: center;
-        "
-      >
-        <div class="hero-bg">
-          <div class="hero-orb hero-orb-1"></div>
+        ">
+      <div class="hero-bg">
+        <div class="hero-orb hero-orb-1"></div>
+      </div>
+      <div class="container hero-inner" style="margin-top: -100px">
+        <h1 class="hero-title">404</h1>
+        <p class="hero-desc">
+          Désolé, la page que vous recherchez n'existe pas ou a été déplacée.
+        </p>
+        <div class="hero-actions" style="justify-content: center">
+          <a href="index.html" class="btn btn-primary btn-lg">Retour à l'accueil</a>
         </div>
-        <div class="container hero-inner" style="margin-top: -100px">
-          <h1 class="hero-title">404</h1>
-          <p class="hero-desc">
-            Désolé, la page que vous recherchez n'existe pas ou a été déplacée.
-          </p>
-          <div class="hero-actions" style="justify-content: center">
-            <a href="index.html" class="btn btn-primary btn-lg"
-              >Retour à l'accueil</a
-            >
-          </div>
-        </div>
-      </section>
-    </main>
-  </body>
+      </div>
+    </section>
+  </main>
+</body>
+
 </html>
