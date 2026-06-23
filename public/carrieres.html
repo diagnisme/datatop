@@ -55,6 +55,62 @@
 
     gtag("config", "G-Z4KLVJCFVK");
   </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://datatop.fr/#organization",
+        "name": "DATATOP",
+        "url": "https://datatop.fr/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://datatop.fr/assets/img/logo.png"
+        },
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "telephone": "+33-6-95-40-86-50",
+          "contactType": "customer service",
+          "areaServed": "FR",
+          "availableLanguage": "French"
+        }
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://datatop.fr/carrieres.html#webpage",
+        "url": "https://datatop.fr/carrieres.html",
+        "name": "Carrières · DATATOP",
+        "description": "Rejoignez DATATOP : Data Scientist, Data Engineer, Architecte Data, Consultant, Formateur, Business Developer. Postes ouverts en CDI / Freelance.",
+        "inLanguage": "fr-FR",
+        "publisher": {
+          "@id": "https://datatop.fr/#organization"
+        },
+        "breadcrumb": {
+          "@id": "https://datatop.fr/carrieres.html#breadcrumb"
+        }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": "https://datatop.fr/carrieres.html#breadcrumb",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Accueil",
+            "item": "https://datatop.fr/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Carrières",
+            "item": "https://datatop.fr/carrieres.html"
+          }
+        ]
+      }
+    ]
+  }
+  </script>
 
   <!-- Supabase Analytics -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
