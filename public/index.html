@@ -45,30 +45,85 @@
     name="twitter:description" />
   <meta content="https://datatop.fr/assets/img/logo.png" name="twitter:image" />
   <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "Organization",
-        "name": "DATATOP",
-        "url": "https://datatop.fr",
-        "logo": "https://datatop.fr/assets/img/logo.png",
-        "contactPoint": {
-          "@type": "ContactPoint",
-          "telephone": "+33-6-95-40-86-50",
-          "contactType": "customer service",
-          "areaServed": "FR",
-          "availableLanguage": "French"
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://datatop.fr/#organization",
+          "name": "DATATOP",
+          "url": "https://datatop.fr/",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://datatop.fr/assets/img/logo.png"
+          },
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+33-6-95-40-86-50",
+            "contactType": "customer service",
+            "areaServed": "FR",
+            "availableLanguage": "French"
+          },
+          "sameAs": ["https://linkedin.com/company/datatop"]
         },
-        "sameAs": ["https://linkedin.com/company/datatop"]
-      }
-    </script>
-  <script type="application/ld+json">
-      {
-        "@context": "https://schema.org/",
-        "@type": "WebSite",
-        "name": "DATATOP",
-        "url": "https://datatop.fr"
-      }
-    </script>
+        {
+          "@type": "WebSite",
+          "@id": "https://datatop.fr/#website",
+          "url": "https://datatop.fr/",
+          "name": "DATATOP",
+          "publisher": {
+            "@id": "https://datatop.fr/#organization"
+          }
+        },
+        {
+          "@type": "WebPage",
+          "@id": "https://datatop.fr/#webpage",
+          "url": "https://datatop.fr/",
+          "name": "DATATOP · Conseil, Formation & Solutions Data et IA",
+          "description": "DATATOP accompagne votre transformation Data et IA : conseil stratégique, formations certifiantes et solutions sur-mesure.",
+          "inLanguage": "fr-FR",
+          "isPartOf": {
+            "@id": "https://datatop.fr/#website"
+          },
+          "breadcrumb": {
+            "@id": "https://datatop.fr/#breadcrumb"
+          },
+          "publisher": {
+            "@id": "https://datatop.fr/#organization"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://datatop.fr/#breadcrumb",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Accueil",
+              "item": "https://datatop.fr/"
+            }
+          ]
+        },
+        {
+          "@type": "Service",
+          "@id": "https://datatop.fr/#service",
+          "serviceType": "Conseil, Formation et Solutions Data & IA",
+          "provider": {
+            "@id": "https://datatop.fr/#organization"
+          },
+          "areaServed": "FR",
+          "availableChannel": {
+            "@type": "ServiceChannel",
+            "servicePhone": {
+              "@type": "ContactPoint",
+              "telephone": "+33-6-95-40-86-50",
+              "contactType": "customer service"
+            }
+          }
+        }
+      ]
+    }
+  </script>
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z4KLVJCFVK"></script>
   <script>
